@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Blood Requests - LifeLink{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Animated Blood Drop Balls (background) */
+    .blood-ball {
+        position: absolute;
+        background: radial-gradient(circle at 60% 40%, #ef4444 70%, #b91c1c 100%);
+        border-radius: 50% 50% 60% 40% / 60% 40% 50% 50%;
+        opacity: 0.13;
+        filter: blur(2px);
+        animation: blood-float 10s ease-in-out infinite;
+    }
+    @keyframes blood-float {
+        0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+        20% { transform: translateY(-30px) scale(1.08) rotate(8deg); }
+        50% { transform: translateY(40px) scale(0.95) rotate(-6deg); }
+        80% { transform: translateY(-15px) scale(1.05) rotate(4deg); }
+    }
+    .glass-card {
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(220,38,38,0.08), 0 4px 12px rgba(0,0,0,0.04);
+        transition: all 0.4s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        overflow: hidden;
+    }
+    .glass-card:hover {
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 20px 40px rgba(220,38,38,0.15), 0 8px 24px rgba(0,0,0,0.08);
+        border-color: #ef4444;
+    }
+    .fade-in-up { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .fade-in-up.visible { opacity: 1; transform: translateY(0); }
+    .emergency-red-btn {
+        background: #ef4444;
+        color: #fff;
+        border: none;
+        padding: 12px 0;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: background 0.2s, transform 0.2s;
+        box-shadow: 0 2px 8px rgba(220,38,38,0.10);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+    .emergency-red-btn:hover {
+        background: #b91c1c;
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Animated Blood Drop Balls Background (Global) -->
+<div class="fixed inset-0 -z-10 pointer-events-none">
+    <div class="blood-ball" style="top: 8%; left: 6%; width: 90px; height: 90px; animation-delay: 0s;"></div>
+    <div class="blood-ball" style="top: 65%; left: 12%; width: 70px; height: 70px; animation-delay: 2s;"></div>
+    <div class="blood-ball" style="top: 25%; left: 80%; width: 110px; height: 110px; animation-delay: 1.5s;"></div>
+    <div class="blood-ball" style="top: 78%; left: 72%; width: 80px; height: 80px; animation-delay: 3s;"></div>
+    <div class="blood-ball" style="top: 52%; left: 48%; width: 120px; height: 120px; animation-delay: 4s;"></div>
+    <div class="blood-ball" style="top: 40%; left: 30%; width: 100px; height: 100px; animation-delay: 2.5s;"></div>
+</div>
+
+<!-- Hero Section -->
+<section class="py-16 px-6 bg-transparent text-center">
+    <div class="container mx-auto max-w-3xl fade-in-up">
+        <div class="glass-card p-12 mb-8">
+            <div class="w-20 h-20 bg-white/30 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm shadow-lg">
+                <i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold font-display mb-4 text-gray-900">Emergency Blood Requests</h1>
+            <p class="text-xl text-gray-700 mb-6">Urgent blood requests from hospitals and patients in need. Every minute counts.</p>
+            <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('emergency.create_emergency') }}" class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow transition-all duration-300 inline-flex items-center justify-center">
+                    <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
+                    Post Emergency Request
+                </a>
+            </div>
+            <div class="mt-2 text-lg md:text-xl italic text-red-600 font-semibold fade-in-up">
+                "A single drop can save a life. Be the reason for someone's tomorrow."
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Emergency Requests -->
+<section class="py-8 px-6">
+    <div class="container mx-auto max-w-7xl">
+        <div class="text-center mb-12 fade-in-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Active Emergency Requests</h2>
+            <p class="text-gray-600 text-lg">Real-time blood requests from hospitals and medical centers</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for request in emergency_requests %}
+            <div class="glass-card fade-in-up border-l-4 border-red-500 p-0 overflow-hidden">
+                <div class="p-8">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">{{ request.patient_name }}</h3>
+                            <p class="text-gray-600">{{ request.hospital }}</p>
+                        </div>
+                        <div class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            {{ request.urgency }}
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+                        <div>
+                            <span class="text-gray-600">Blood Group:</span>
+                            <div class="font-bold flex items-center gap-2">
+                                <i data-lucide="droplets" class="w-4 h-4 text-red-500"></i>
+                                {{ request.blood_type }}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Units Needed:</span>
+                            <div class="font-bold">{{ request.units_needed }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">City:</span>
+                            <div class="font-bold">{{ request.city }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Contact:</span>
+                            <div class="font-bold">{{ request.contact }}</div>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-gray-600">Posted:</span>
+                            <div class="font-bold">{{ request.created_at.strftime('%b %d, %H:%M') }}</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ (request.hospital ~ ' ' ~ request.city) | urlencode }}" target="_blank" class="emergency-red-btn">
+                            <i data-lucide="map-pin" class="w-4 h-4 mr-1"></i>
+                            Directions
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- No Requests Message -->
+        {% if emergency_requests|length == 0 %}
+        <div class="text-center py-12 fade-in-up">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="check-circle" class="w-12 h-12 text-green-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">No Active Emergency Requests</h3>
+            <p class="text-gray-600 mb-6">Great news! There are currently no urgent blood requests in your area.</p>
+        </div>
+        {% endif %}
+    </div>
+    <!-- Donor Stats Section (moved below requests) -->
+    <div class="container mx-auto max-w-3xl mt-12">
+        <div class="grid grid-cols-2 gap-6 text-center">
+            <div class="glass-card p-6 fade-in-up">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">{{ total_donors }}</div>
+                <div class="text-sm text-gray-600">Total Donors</div>
+            </div>
+            <div class="glass-card p-6 fade-in-up">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">{{ active_donors }}</div>
+                <div class="text-sm text-gray-600">Active Donors</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Fade-in animation for cards and sections
+    document.addEventListener('DOMContentLoaded', function() {
+        const fadeEls = document.querySelectorAll('.fade-in-up');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        fadeEls.forEach(el => observer.observe(el));
+
+        // Add nav-active to Emergency link in desktop nav
+        document.querySelectorAll('a').forEach(function(link) {
+            if (link.textContent.trim() === 'Emergency') {
+                link.classList.add('nav-active');
+            }
+        });
+    });
+</script>
+{% endblock %} 

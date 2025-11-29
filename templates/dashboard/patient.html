@@ -1,0 +1,580 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard - LifeLink{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dashboard-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    /* Animated Blood Drop Balls (background) */
+    .blood-ball {
+        position: absolute;
+        background: radial-gradient(circle at 60% 40%, #ef4444 70%, #b91c1c 100%);
+        border-radius: 50% 50% 60% 40% / 60% 40% 50% 50%;
+        opacity: 0.13;
+        filter: blur(2px);
+        animation: blood-float 10s ease-in-out infinite;
+    }
+    @keyframes blood-float {
+        0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+        20% { transform: translateY(-30px) scale(1.08) rotate(8deg); }
+        50% { transform: translateY(40px) scale(0.95) rotate(-6deg); }
+        80% { transform: translateY(-15px) scale(1.05) rotate(4deg); }
+    }
+    .stats-card {
+        transition: all 0.3s ease;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    .donor-card {
+        transition: all 0.3s ease;
+    }
+    .donor-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .search-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .blood-type-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    .blood-type-o-positive { background-color: #fed7d7; color: #c53030; }
+    .blood-type-o-negative { background-color: #fed7d7; color: #742a2a; }
+    .blood-type-a-positive { background-color: #bee3f8; color: #2b6cb0; }
+    .blood-type-a-negative { background-color: #bee3f8; color: #2a4365; }
+    .blood-type-b-positive { background-color: #c6f6d5; color: #22543d; }
+    .blood-type-b-negative { background-color: #c6f6d5; color: #1a4731; }
+    .blood-type-ab-positive { background-color: #e9d8fd; color: #553c9a; }
+    .blood-type-ab-negative { background-color: #e9d8fd; color: #44337a; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Animated Blood Drop Balls Background (Global) -->
+<div class="fixed inset-0 -z-10 pointer-events-none">
+    <div class="blood-ball" style="top: 8%; left: 6%; width: 90px; height: 90px; animation-delay: 0s;"></div>
+    <div class="blood-ball" style="top: 65%; left: 12%; width: 70px; height: 70px; animation-delay: 2s;"></div>
+    <div class="blood-ball" style="top: 25%; left: 80%; width: 110px; height: 110px; animation-delay: 1.5s;"></div>
+    <div class="blood-ball" style="top: 78%; left: 72%; width: 80px; height: 80px; animation-delay: 3s;"></div>
+    <div class="blood-ball" style="top: 52%; left: 48%; width: 120px; height: 120px; animation-delay: 4s;"></div>
+    <div class="blood-ball" style="top: 40%; left: 30%; width: 100px; height: 100px; animation-delay: 2.5s;"></div>
+</div>
+<div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <!-- Header -->
+    <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="{{ url_for('main.home') }}" class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                    <i data-lucide="heart" class="w-5 h-5 text-white fill-current"></i>
+                </div>
+                <span class="text-2xl font-bold text-gray-900">LifeLink</span>
+            </a>
+            <div class="flex items-center space-x-3">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                    <i data-lucide="settings" class="w-4 h-4 mr-2"></i>
+                    Settings
+                </button>
+                <a href="{{ url_for('dashboard.donor_dashboard') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i data-lucide="users" class="w-4 h-4 mr-2"></i>
+                    Donor Dashboard
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Patient Dashboard</h1>
+                    <p class="text-gray-600">Search for available donors in your area</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                        Patient Access
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 mb-8">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Find Blood Donors</h2>
+                <p class="text-blue-100">Search for available donors by blood type and location</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">Blood Type</label>
+                    <select id="bloodTypeFilter" class="w-full px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                        <option value="">All Blood Types</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">Location</label>
+                    <select id="locationFilter" class="w-full px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                        <option value="">All Locations</option>
+                        <option value="New York">New York</option>
+                        <option value="Los Angeles">Los Angeles</option>
+                        <option value="Chicago">Chicago</option>
+                        <option value="Houston">Houston</option>
+                        <option value="Phoenix">Phoenix</option>
+                        <option value="Philadelphia">Philadelphia</option>
+                        <option value="San Antonio">San Antonio</option>
+                        <option value="San Diego">San Diego</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-end">
+                    <button id="searchBtn" class="w-full bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i data-lucide="search" class="w-4 h-4 mr-2 inline"></i>
+                        Search Donors
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid md:grid-cols-4 gap-4 mb-8">
+            <div class="stats-card bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-gray-900" id="totalDonors">1,247</div>
+                <div class="text-sm text-gray-600">Total Donors</div>
+            </div>
+            
+            <div class="stats-card bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-gray-900" id="availableDonors">847</div>
+                <div class="text-sm text-gray-600">Available Now</div>
+            </div>
+            
+            <div class="stats-card bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg mb-4">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-orange-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-gray-900" id="nearbyDonors">156</div>
+                <div class="text-sm text-gray-600">Nearby (10km)</div>
+            </div>
+            
+            <div class="stats-card bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
+                    <i data-lucide="clock" class="w-6 h-6 text-purple-500"></i>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">2.3</div>
+                <div class="text-sm text-gray-600">Avg Response Time (min)</div>
+            </div>
+        </div>
+
+        <!-- Donors List -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                            <i data-lucide="users" class="w-5 h-5 text-blue-500"></i>
+                            Available Donors
+                        </h2>
+                        <p class="text-gray-600">Find and connect with blood donors in your area</p>
+                    </div>
+                    <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium" id="donorCount">
+                        847 Available
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="donorsGrid">
+                    <!-- Donor cards will be populated by JavaScript -->
+                </div>
+                
+                <!-- Loading state -->
+                <div id="loadingState" class="hidden text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <p class="text-gray-600 mt-2">Searching for donors...</p>
+                </div>
+                
+                <!-- No results state -->
+                <div id="noResultsState" class="hidden text-center py-12">
+                    <i data-lucide="search-x" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No donors found</h3>
+                    <p class="text-gray-600">Try adjusting your search criteria</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Donor Details Modal -->
+<div id="donorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-gray-900">Donor Details</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6" id="modalContent">
+                <!-- Modal content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mock donor data
+const mockDonors = [
+    {
+        id: 1,
+        name: "John Smith",
+        bloodType: "O+",
+        age: 28,
+        city: "New York",
+        distance: "2.3 km",
+        totalDonations: 12,
+        lastDonation: "2 weeks ago",
+        isAvailable: true,
+        phone: "+1 (555) 123-4567",
+        email: "john.smith@email.com",
+        address: "123 Main Street, New York, NY 10001",
+        medicalConditions: [],
+        emergencyContact: "+1 (555) 987-6543"
+    },
+    {
+        id: 2,
+        name: "Fatima Ali",
+        bloodType: "A+",
+        age: 32,
+        city: "Los Angeles",
+        distance: "5.1 km",
+        totalDonations: 8,
+        lastDonation: "1 month ago",
+        isAvailable: true,
+        phone: "+1 (555) 234-5678",
+        email: "fatima.ali@email.com",
+        address: "456 Oak Avenue, Los Angeles, CA 90210",
+        medicalConditions: [],
+        emergencyContact: "+1 (555) 876-5432"
+    },
+    {
+        id: 3,
+        name: "Ahmed Hassan",
+        bloodType: "B+",
+        age: 25,
+        city: "Chicago",
+        distance: "1.8 km",
+        totalDonations: 15,
+        lastDonation: "3 weeks ago",
+        isAvailable: true,
+        phone: "+1 (555) 345-6789",
+        email: "ahmed.hassan@email.com",
+        address: "789 Pine Street, Chicago, IL 60601",
+        medicalConditions: [],
+        emergencyContact: "+1 (555) 765-4321"
+    },
+    {
+        id: 4,
+        name: "Sarah Johnson",
+        bloodType: "O-",
+        age: 29,
+        city: "New York",
+        distance: "3.7 km",
+        totalDonations: 6,
+        lastDonation: "1 week ago",
+        isAvailable: true,
+        phone: "+1 (555) 456-7890",
+        email: "sarah.johnson@email.com",
+        address: "321 Elm Street, New York, NY 10002",
+        medicalConditions: [],
+        emergencyContact: "+1 (555) 654-3210"
+    },
+    {
+        id: 5,
+        name: "Michael Chen",
+        bloodType: "AB+",
+        age: 35,
+        city: "Los Angeles",
+        distance: "4.2 km",
+        totalDonations: 10,
+        lastDonation: "2 weeks ago",
+        isAvailable: true,
+        phone: "+1 (555) 567-8901",
+        email: "michael.chen@email.com",
+        address: "654 Maple Drive, Los Angeles, CA 90211",
+        medicalConditions: [],
+        emergencyContact: "+1 (555) 543-2109"
+    },
+    {
+        id: 6,
+        name: "Omar Abdullah",
+        bloodType: "A-",
+        age: 27,
+        city: "Chicago",
+        distance: "2.9 km",
+        totalDonations: 9,
+        lastDonation: "1 month ago",
+        isAvailable: true,
+        phone: "+1 (555) 678-9012",
+        email: "omar.abdullah@email.com",
+        address: "987 Cedar Lane, Chicago, IL 60602",
+        medicalConditions: [],
+        emergencyContact: "+1 (555) 432-1098"
+    }
+];
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    displayDonors(mockDonors);
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Search button
+    document.getElementById('searchBtn').addEventListener('click', performSearch);
+    
+    // Filter changes
+    document.getElementById('bloodTypeFilter').addEventListener('change', performSearch);
+    document.getElementById('locationFilter').addEventListener('change', performSearch);
+    
+    // Modal close
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('donorModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+}
+
+function performSearch() {
+    const bloodType = document.getElementById('bloodTypeFilter').value;
+    const location = document.getElementById('locationFilter').value;
+    
+    // Show loading state
+    document.getElementById('loadingState').classList.remove('hidden');
+    document.getElementById('donorsGrid').classList.add('hidden');
+    document.getElementById('noResultsState').classList.add('hidden');
+    
+    // Simulate API call delay
+    setTimeout(() => {
+        let filteredDonors = mockDonors.filter(donor => {
+            if (bloodType && donor.bloodType !== bloodType) return false;
+            if (location && donor.city !== location) return false;
+            return donor.isAvailable;
+        });
+        
+        displayDonors(filteredDonors);
+        
+        // Hide loading state
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('donorsGrid').classList.remove('hidden');
+    }, 500);
+}
+
+function displayDonors(donors) {
+    const grid = document.getElementById('donorsGrid');
+    const countElement = document.getElementById('donorCount');
+    const noResultsElement = document.getElementById('noResultsState');
+    
+    // Update count
+    countElement.textContent = `${donors.length} Available`;
+    
+    if (donors.length === 0) {
+        noResultsElement.classList.remove('hidden');
+        grid.innerHTML = '';
+        return;
+    }
+    
+    noResultsElement.classList.add('hidden');
+    
+    grid.innerHTML = donors.map(donor => `
+        <div class="donor-card bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">${donor.name}</h3>
+                        <p class="text-sm text-gray-600">${donor.age} years old</p>
+                    </div>
+                </div>
+                <div class="blood-type-badge blood-type-${donor.bloodType.toLowerCase().replace('+', '-positive').replace('-', '-negative')}">
+                    ${donor.bloodType}
+                </div>
+            </div>
+            
+            <div class="space-y-3 mb-4">
+                <div class="flex items-center text-sm text-gray-600">
+                    <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-gray-400"></i>
+                    ${donor.city} • ${donor.distance}
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i data-lucide="droplets" class="w-4 h-4 mr-2 text-gray-400"></i>
+                    ${donor.totalDonations} donations • Last: ${donor.lastDonation}
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="viewDonorDetails(${donor.id})" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i data-lucide="eye" class="w-4 h-4 mr-1"></i>
+                    View Details
+                </button>
+                <button onclick="contactDonor(${donor.id})" class="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i data-lucide="phone" class="w-4 h-4 mr-1"></i>
+                    Contact
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function viewDonorDetails(donorId) {
+    const donor = mockDonors.find(d => d.id === donorId);
+    if (!donor) return;
+    
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = `
+        <div class="space-y-6">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="user" class="w-10 h-10 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">${donor.name}</h3>
+                <div class="blood-type-badge blood-type-${donor.bloodType.toLowerCase().replace('+', '-positive').replace('-', '-negative')} inline-block mt-2">
+                    ${donor.bloodType}
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-3">Personal Information</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Age:</span>
+                            <span class="font-medium">${donor.age} years</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Location:</span>
+                            <span class="font-medium">${donor.city}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Distance:</span>
+                            <span class="font-medium">${donor.distance}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Address:</span>
+                            <span class="font-medium">${donor.address}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-3">Donation History</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Donations:</span>
+                            <span class="font-medium">${donor.totalDonations}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Last Donation:</span>
+                            <span class="font-medium">${donor.lastDonation}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Status:</span>
+                            <span class="font-medium text-green-600">Available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-semibold text-gray-900 mb-3">Contact Information</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Phone:</span>
+                        <span class="font-medium">${donor.phone}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Email:</span>
+                        <span class="font-medium">${donor.email}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Emergency Contact:</span>
+                        <span class="font-medium">${donor.emergencyContact}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 pt-4 border-t border-gray-100">
+                <button onclick="contactDonor(${donor.id})" class="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    <i data-lucide="phone" class="w-4 h-4 mr-2"></i>
+                    Call Now
+                </button>
+                <button onclick="sendMessage(${donor.id})" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                    Send Message
+                </button>
+                <button onclick="getDirections(${donor.id})" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
+                    Directions
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('donorModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('donorModal').classList.add('hidden');
+}
+
+function contactDonor(donorId) {
+    const donor = mockDonors.find(d => d.id === donorId);
+    if (donor) {
+        alert(`Calling ${donor.name} at ${donor.phone}`);
+    }
+}
+
+function sendMessage(donorId) {
+    const donor = mockDonors.find(d => d.id === donorId);
+    if (donor) {
+        alert(`Sending message to ${donor.name} at ${donor.email}`);
+    }
+}
+
+function getDirections(donorId) {
+    const donor = mockDonors.find(d => d.id === donorId);
+    if (donor) {
+        alert(`Getting directions to ${donor.address}`);
+    }
+}
+</script>
+{% endblock %} 

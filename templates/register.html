@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+
+{% block title %}Register - LifeLink{% endblock %}
+
+{% block extra_head %}
+<style>
+    .register-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .step-card {
+        transition: all 0.3s ease;
+    }
+    
+    .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .step-card.selected {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);
+    }
+    
+    .form-input {
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen register-gradient">
+    <div class="container mx-auto px-6 py-12">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-12">
+                <div class="inline-block bg-gradient-to-r from-red-100 to-pink-100 text-red-700 border border-red-200 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                    🩸 Join the Medical Network
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+                    Create Your
+                    <span class="block bg-gradient-to-r from-red-200 to-pink-200 bg-clip-text text-transparent">
+                        LifeLink Account
+                    </span>
+                </h1>
+                <p class="text-xl text-white/90 max-w-2xl mx-auto">
+                    Join thousands of verified medical professionals and donors in our secure, HIPAA-compliant platform
+                </p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-white">Step <span id="current-step">1</span> of 4</span>
+                    <span class="text-sm font-medium text-white"><span id="progress-percent">25</span>% Complete</span>
+                </div>
+                <div class="w-full bg-white/20 rounded-full h-2">
+                    <div id="progress-bar" class="progress-bar h-2 rounded-full transition-all duration-500" style="width: 25%"></div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <form method="POST" id="registration-form">
+                    <!-- Step 1: User Type Selection -->
+                    <div id="step-1" class="step-content">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-4">Choose Your Role</h2>
+                            <p class="text-gray-600">Select how you'd like to participate in our medical network</p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+                            <div class="step-card bg-white rounded-2xl p-8 border-2 border-gray-200 cursor-pointer" onclick="selectUserType('donor')">
+                                <div class="text-center">
+                                    <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                        <i data-lucide="heart" class="w-10 h-10 text-white fill-current"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Blood Donor</h3>
+                                    <p class="text-gray-600 mb-6">
+                                        Save lives by donating blood and responding to emergency requests in your area
+                                    </p>
+                                    <div class="space-y-2 text-sm text-gray-500">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                            <span>Emergency notifications</span>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                            <span>Donation tracking</span>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                            <span>Rewards program</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="step-card bg-white rounded-2xl p-8 border-2 border-gray-200 cursor-pointer" onclick="selectUserType('patient')">
+                                <div class="text-center">
+                                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                        <i data-lucide="user" class="w-10 h-10 text-white"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Patient/Family</h3>
+                                    <p class="text-gray-600 mb-6">
+                                        Request blood donations for yourself or loved ones in need of emergency care
+                                    </p>
+                                    <div class="space-y-2 text-sm text-gray-500">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                            <span>Emergency requests</span>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                            <span>Donor matching</span>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                            <span>Medical support</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="userType" id="userType" value="donor">
+                    </div>
+
+                    <!-- Step 2: Personal Information -->
+                    <div id="step-2" class="step-content hidden">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-4">Personal Information</h2>
+                            <p class="text-gray-600">Tell us about yourself</p>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                <input type="text" id="fullName" name="fullName" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                <input type="email" id="email" name="email" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label for="age" class="block text-sm font-medium text-gray-700 mb-2">Age</label>
+                                <input type="number" id="age" name="age" min="18" max="65" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                                <input type="password" id="password" name="password" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Medical Information -->
+                    <div id="step-3" class="step-content hidden">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-4">Medical Information</h2>
+                            <p class="text-gray-600">Help us match you with the right donors or patients</p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="bloodGroup" class="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
+                                <select id="bloodGroup" name="bloodGroup" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                                    <option value="">Select Blood Group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                            <!-- City field removed for donor -->
+                            <div id="location-fields-donor" class="hidden md:col-span-2">
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="latitude" class="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
+                                        <input type="text" id="latitude" name="latitude" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" readonly required>
+                                    </div>
+                                    <div>
+                                        <label for="longitude" class="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
+                                        <input type="text" id="longitude" name="longitude" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" readonly required>
+                                    </div>
+                                </div>
+                                <!-- Donor address field -->
+                                <div class="mt-4">
+                                    <label for="address-donor" class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                    <textarea id="address-donor" name="address-donor" rows="2" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required></textarea>
+                                </div>
+                                <div class="mt-4 flex gap-4 items-center">
+                                    <button type="button" id="currentLocationBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">Current Location</button>
+                                    <span class="text-gray-500 text-sm">or pick on map</span>
+                                </div>
+                                <div id="map" class="mt-4 rounded-lg" style="height: 300px;"></div>
+                            </div>
+                            <!-- End donor location fields -->
+                            <!-- Patient address field -->
+                            <div id="city-field-patient">
+                                <label for="address-patient" class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                <input type="text" id="address-patient" name="address-patient" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                            </div>
+                            <!-- Hidden address field for backend -->
+                            <input type="hidden" id="address" name="address">
+                            <div class="md:col-span-2">
+                                <label for="medicalConditions" class="block text-sm font-medium text-gray-700 mb-2">Medical Conditions (Optional)</label>
+                                <textarea id="medicalConditions" name="medicalConditions" rows="3" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Any medical conditions we should be aware of..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Terms and Conditions -->
+                    <div id="step-4" class="step-content hidden">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-900 mb-4">Terms and Conditions</h2>
+                            <p class="text-gray-600">Please review and accept our terms</p>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="font-semibold text-gray-900 mb-4">Privacy Policy</h3>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    Your personal and medical information will be kept confidential and secure. We follow HIPAA guidelines and only share information with authorized medical professionals when necessary for emergency blood matching.
+                                </p>
+                                <div class="flex items-start space-x-3">
+                                    <input type="checkbox" id="privacyPolicy" name="privacyPolicy" class="mt-1 rounded border-gray-300 text-red-500 focus:ring-red-500" required>
+                                    <label for="privacyPolicy" class="text-sm text-gray-700">
+                                        I have read and agree to the Privacy Policy
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="font-semibold text-gray-900 mb-4">Terms of Service</h3>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    By registering, you agree to provide accurate information and understand that LifeLink is a platform for connecting donors and patients, not a medical service provider.
+                                </p>
+                                <div class="flex items-start space-x-3">
+                                    <input type="checkbox" id="termsOfService" name="termsOfService" class="mt-1 rounded border-gray-300 text-red-500 focus:ring-red-500" required>
+                                    <label for="termsOfService" class="text-sm text-gray-700">
+                                        I have read and agree to the Terms of Service
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="font-semibold text-gray-900 mb-4">Emergency Contact</h3>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    Please provide an emergency contact who can be reached if needed.
+                                </p>
+                                <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Emergency contact name and phone" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-8">
+                        <button type="button" id="prev-btn" onclick="previousStep()" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                            <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                            Previous
+                        </button>
+                        <div class="flex-1"></div>
+                        <button type="button" id="next-btn" onclick="nextStep()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                            Next
+                            <i data-lucide="arrow-right" class="w-4 h-4 inline ml-2"></i>
+                        </button>
+                        <button type="submit" id="submit-btn" class="hidden bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                            Complete Registration
+                            <i data-lucide="check" class="w-4 h-4 inline ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script>
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    function updateProgress() {
+        const progress = (currentStep / totalSteps) * 100;
+        document.getElementById('progress-bar').style.width = progress + '%';
+        document.getElementById('current-step').textContent = currentStep;
+        document.getElementById('progress-percent').textContent = Math.round(progress);
+    }
+
+    function showStep(step) {
+        // Hide all steps
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Show current step
+        document.getElementById(`step-${step}`).classList.remove('hidden');
+        
+        // Update buttons
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        if (step === 1) {
+            prevBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+        }
+        
+        if (step === totalSteps) {
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        } else {
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        }
+        
+        updateProgress();
+    }
+
+    function nextStep() {
+        if (validateCurrentStep()) {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+    }
+
+    function previousStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+
+function showDonorLocationFields() {
+    document.getElementById('location-fields-donor').classList.remove('hidden');
+    // Remove city field from DOM if present
+    var cityFieldDiv = document.getElementById('city-field-patient');
+    if (cityFieldDiv && cityFieldDiv.parentNode) {
+        cityFieldDiv.parentNode.removeChild(cityFieldDiv);
+    }
+    setTimeout(function() {
+        if (typeof map !== 'undefined' && map) {
+            map.invalidateSize();
+            const lat = parseFloat(document.getElementById('latitude').value) || 39.8283;
+            const lon = parseFloat(document.getElementById('longitude').value) || -98.5795;
+            map.setView([lat, lon], 13);
+            if (typeof marker !== 'undefined' && marker) {
+                marker.setLatLng([lat, lon]);
+            }
+        }
+    }, 300);
+}
+function showPatientCityField() {
+    document.getElementById('location-fields-donor').classList.add('hidden');
+    // Add address field back if not present
+    if (!document.getElementById('city-field-patient')) {
+        var grid = document.querySelector('#step-3 .grid');
+        var addressDiv = document.createElement('div');
+        addressDiv.id = 'city-field-patient';
+        addressDiv.innerHTML = `
+            <label for="address-patient" class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+            <input type="text" id="address-patient" name="address-patient" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+        `;
+        // Insert before medicalConditions textarea
+        var medCond = document.getElementById('medicalConditions');
+        if (medCond && medCond.parentNode) {
+            grid.insertBefore(addressDiv, medCond.parentNode);
+        } else {
+            grid.appendChild(addressDiv);
+        }
+    }
+}
+function selectUserType(type) {
+    document.getElementById('userType').value = type;
+    // Remove 'selected' from all step cards
+    document.querySelectorAll('.step-card').forEach(card => card.classList.remove('selected'));
+    var lat = document.getElementById('latitude');
+    var lon = document.getElementById('longitude');
+    if (type === 'donor') {
+        document.querySelectorAll('.step-card')[0].classList.add('selected');
+        showDonorLocationFields();
+        var donorAddress = document.getElementById('address-donor');
+        if (donorAddress) {
+            donorAddress.removeAttribute('disabled');
+            donorAddress.setAttribute('required', 'required');
+        }
+        var patientAddress = document.getElementById('address-patient');
+        if (patientAddress) {
+            patientAddress.setAttribute('disabled', 'disabled');
+            patientAddress.removeAttribute('required');
+        }
+        if (lat) lat.setAttribute('required', 'required');
+        if (lon) lon.setAttribute('required', 'required');
+    } else {
+        document.querySelectorAll('.step-card')[1].classList.add('selected');
+        showPatientCityField();
+        var donorAddress = document.getElementById('address-donor');
+        if (donorAddress) {
+            donorAddress.setAttribute('disabled', 'disabled');
+            donorAddress.removeAttribute('required');
+        }
+        var patientAddress = document.getElementById('address-patient');
+        if (patientAddress) {
+            patientAddress.removeAttribute('disabled');
+            patientAddress.setAttribute('required', 'required');
+        }
+        if (lat) lat.removeAttribute('required');
+        if (lon) lon.removeAttribute('required');
+    }
+}
+
+    function validateCurrentStep() {
+        switch(currentStep) {
+            case 1:
+                const userType = document.getElementById('userType').value;
+                if (!userType) {
+                    alert('Please select a user type');
+                    return false;
+                }
+                break;
+            case 2:
+                const requiredFields = ['fullName', 'email', 'phone', 'age', 'password', 'confirmPassword'];
+                for (let field of requiredFields) {
+                    const value = document.getElementById(field).value;
+                    if (!value) {
+                        alert('Please fill in all required fields');
+                        return false;
+                    }
+                }
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match');
+                    return false;
+                }
+                break;
+            case 3:
+                const bloodGroup = document.getElementById('bloodGroup').value;
+                const userTypeStep3 = document.getElementById('userType').value;
+                if (!bloodGroup) {
+                    alert('Please fill in all required fields');
+                    return false;
+                }
+                if (userTypeStep3 === 'donor') {
+                    const lat = document.getElementById('latitude').value;
+                    const lon = document.getElementById('longitude').value;
+                    const address = document.getElementById('address-donor').value;
+                    if (!lat || !lon || !address) {
+                        alert('Please select your location on the map and ensure address is filled.');
+                        return false;
+                    }
+                } else {
+                    const address = document.getElementById('address-patient').value;
+                    if (!address) {
+                        alert('Please fill in all required fields');
+                        return false;
+                    }
+                }
+                break;
+            case 4:
+                const privacyPolicy = document.getElementById('privacyPolicy').checked;
+                const termsOfService = document.getElementById('termsOfService').checked;
+                if (!privacyPolicy || !termsOfService) {
+                    alert('Please accept the terms and conditions');
+                    return false;
+                }
+                break;
+        }
+        return true;
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        showStep(1);
+        lucide.createIcons();
+        // Fix: Remove required from hidden fields before submit
+        document.getElementById('registration-form').addEventListener('submit', function(e) {
+            var userType = document.getElementById('userType').value;
+            if (userType === 'donor') {
+                var donorAddress = document.getElementById('address-donor');
+                if (donorAddress) {
+                    document.getElementById('address').value = donorAddress.value;
+                }
+            }
+            if (userType === 'patient') {
+                var patientAddress = document.getElementById('address-patient');
+                if (patientAddress) {
+                    document.getElementById('address').value = patientAddress.value;
+                }
+            }
+        });
+    });
+
+// Leaflet map setup
+let map, marker;
+function initMap(lat, lon) {
+    if (!map) {
+        map = L.map('map').setView([lat, lon], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+        marker = L.marker([lat, lon], {draggable:true}).addTo(map);
+        marker.on('dragend', function(e) {
+            const pos = marker.getLatLng();
+            setLatLon(pos.lat, pos.lng);
+            reverseGeocode(pos.lat, pos.lng);
+        });
+        map.on('click', function(e) {
+            setLatLon(e.latlng.lat, e.latlng.lng);
+            marker.setLatLng(e.latlng);
+            reverseGeocode(e.latlng.lat, e.latlng.lng);
+        });
+    } else {
+        map.setView([lat, lon], 13);
+        marker.setLatLng([lat, lon]);
+    }
+}
+function setLatLon(lat, lon) {
+    document.getElementById('latitude').value = lat.toFixed(6);
+    document.getElementById('longitude').value = lon.toFixed(6);
+    if (typeof marker !== 'undefined' && marker) {
+        marker.setLatLng([lat, lon]);
+    }
+    if (typeof map !== 'undefined' && map) {
+        map.setView([lat, lon], 13);
+    }
+}
+function reverseGeocode(lat, lon) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.display_name) {
+                document.getElementById('address').value = data.display_name;
+                // Also update the visible donor address textarea if present
+                var donorAddress = document.getElementById('address-donor');
+                if (donorAddress) {
+                    donorAddress.value = data.display_name;
+                }
+            }
+        });
+}
+document.getElementById('currentLocationBtn')?.addEventListener('click', function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            setLatLon(pos.coords.latitude, pos.coords.longitude);
+            initMap(pos.coords.latitude, pos.coords.longitude);
+            reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+            if (typeof map !== 'undefined' && map) {
+                setTimeout(function() { map.invalidateSize(); }, 300);
+            }
+        });
+    } else {
+        alert('Geolocation is not supported by your browser.');
+    }
+});
+// Initialize map with default location (center of US)
+window.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('userType').value === 'donor') {
+        setLatLon(39.8283, -98.5795);
+        initMap(39.8283, -98.5795);
+    }
+});
+// On page load, set city field state based on default userType
+window.addEventListener('DOMContentLoaded', function() {
+    var userType = document.getElementById('userType').value;
+    selectUserType(userType);
+});
+</script>
+{% endblock %} 

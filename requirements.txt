@@ -1,0 +1,11 @@
+Flask==3.1.1
+Flask-WTF==1.2.2
+WTForms==3.2.1
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.1.0
+Flask-SocketIO==5.3.6
+Flask-Login==0.6.3
+python-dotenv==1.0.0
+email-validator==2.1.0
+# Optional for email support in the future:
+# Flask-Mail==0.9.1 

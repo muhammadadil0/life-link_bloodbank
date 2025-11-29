@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+myenv/
+venv/
+ENV/
+env/
+.venv
+
+# Flask
+instance/
+.webassets-cache
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+
+# Misc
+.cache/
+*.bak
+*.tmp
+temp/
+
+# OS
+Thumbs.db
+.DS_Store
+.directory
+
+# Migrations (optional - uncomment if you don't want to track)
+# migrations/
+
+# Uploaded files
+uploads/
+static/uploads/
+
+# Backup files
+*.zip
+*.tar.gz
+*.rar
+blood_bank.zip
