@@ -158,86 +158,18 @@
                         </div>
                     </div>
                     <div class="flex gap-2 mt-4">
-                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ (request.hospital ~ ' ' ~ request.city) | urlencode }}" target="_blank" class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
                             <i data-lucide="map-pin" class="w-4 h-4 mr-1"></i>
-                            Get Directions
+                            Directions
+                        </a>
+                        <button onclick="openChatModal({{ session['user_id'] }}, '{{ session['user_type'] }}', {{ request.patient_id if request.patient_id else 0 }}, 'patient', '{{ request.patient_name }}')" class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
+                            <i data-lucide="message-circle" class="w-4 h-4 mr-1"></i>
+                            Chat
                         </button>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-        </div>
-    </section>
-
-    <!-- Patients List Section -->
-    <section class="mb-16">
-        <div class="glass-card p-8">
-            <h2 class="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-                <i data-lucide="users" class="w-5 h-5 text-blue-500"></i>
-                Patients
-            </h2>
-            {% if patients %}
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {% for patient in patients %}
-                <div class="relative bg-white rounded-2xl shadow-xl border-l-8 border-red-400 p-8 flex flex-col items-start" style="min-width:300px;">
-                    <div class="flex items-center w-full mb-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center mr-4">
-                            <i data-lucide="user" class="w-8 h-8 text-white"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-900">{{ patient.name }}</h3>
-                            <div class="text-sm text-gray-500">{{ patient.email }}</div>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-8 w-full mb-4 mt-2">
-                        <div class="flex items-center gap-2 text-gray-500 text-sm">
-                            <i data-lucide="calendar" class="w-4 h-4"></i>
-                            <span>Age</span>
-                            <span class="text-gray-900 font-semibold ml-1">{{ patient.age }}</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-gray-500 text-sm">
-                            <i data-lucide="phone" class="w-4 h-4"></i>
-                            <span>Phone</span>
-                            <span class="text-gray-900 font-semibold ml-1">{{ patient.phone }}</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-gray-500 text-sm">
-                            <i data-lucide="droplet" class="w-4 h-4"></i>
-                            <span>Blood Group</span>
-                            <span class="text-gray-900 font-semibold ml-1">{{ patient.blood_type }}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-2 text-gray-500 text-sm mb-2">
-                        <i data-lucide="map-pin" class="w-4 h-4 mt-1"></i>
-                        <div>
-                            <span class="font-semibold text-gray-700">Address</span><br>
-                            <span class="text-gray-900">{{ patient.address }}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-2 text-gray-500 text-sm mb-2">
-                        <i data-lucide="info" class="w-4 h-4 mt-1"></i>
-                        <div>
-                            <span class="font-semibold text-gray-700">Medical Conditions</span><br>
-                            <span class="text-gray-900">{{ patient.medical_conditions or 'None' }}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-2 text-gray-500 text-sm mb-4">
-                        <i data-lucide="user-check" class="w-4 h-4 mt-1"></i>
-                        <div>
-                            <span class="font-semibold text-gray-700">Emergency Contact</span><br>
-                            <span class="text-gray-900">{{ patient.emergency_contact }}</span>
-                        </div>
-                    </div>
-                    <div class="flex gap-3 w-full mt-2">
-                        <button class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center transition-colors" onclick="openChatModal({{ session['user_id'] }}, '{{ session['user_type'] }}', {{ patient.id }}, 'patient', '{{ patient.name }}')">
-                            <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>Chat
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="text-center text-gray-500 py-8">No patients found at the moment.</div>
-            {% endif %}
         </div>
     </section>
 </div>
@@ -251,7 +183,7 @@
     </div>
     <div id="chatMessages" class="h-64 overflow-y-auto border rounded p-2 mb-2 bg-gray-50"></div>
     <div class="flex">
-      <input id="chatInput" type="text" class="flex-1 border rounded-l px-2 py-1" placeholder="Type a message...">
+      <input id="chatInput" type="text" class="flex-1 border rounded-l px-2 py-1" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button onclick="sendMessage()" class="bg-red-500 text-white px-4 rounded-r">Send</button>
     </div>
   </div>
@@ -294,8 +226,13 @@ function sendMessage() {
 }
 socket.on('receive_message', function(data) {
     console.log('Received message:', data); // Debugging line
+    
     // Only show notification if the current user is the recipient
     if (myId == data.receiver_id && myType == data.receiver_type) {
+        // Always show browser notification with sound and title flash
+        showNotification(data.sender_name, data.message);
+        
+        // Show toastr notification
         if (typeof toastr !== 'undefined') {
             toastr.options = {
                 "closeButton": true,
@@ -304,8 +241,6 @@ socket.on('receive_message', function(data) {
                 "timeOut": "5000"
             };
             toastr.info('New message from ' + data.sender_name + ': ' + data.message);
-        } else {
-            console.log('Toastr is not defined!');
         }
     }
     let chatBox = document.getElementById('chatMessages');

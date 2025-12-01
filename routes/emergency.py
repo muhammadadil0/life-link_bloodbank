@@ -10,7 +10,13 @@ emergency_bp = Blueprint('emergency', __name__, url_prefix='/emergency')
 @emergency_bp.route('/')
 def emergency_list():
     """Emergency requests listing page"""
-    emergency_requests = EmergencyRequest.query.order_by(EmergencyRequest.created_at.desc()).all()
+    # If user is a patient, show only their requests
+    if session.get('user_type') == 'patient' and session.get('user_id'):
+        emergency_requests = EmergencyRequest.query.filter_by(patient_id=session['user_id']).order_by(EmergencyRequest.created_at.desc()).all()
+    else:
+        # For donors and non-logged-in users, show all requests
+        emergency_requests = EmergencyRequest.query.order_by(EmergencyRequest.created_at.desc()).all()
+    
     total_donors = Donor.query.count()
     active_donors = Donor.query.filter_by(is_available=True).count()
     return render_template('emergency.html', emergency_requests=emergency_requests, total_donors=total_donors, active_donors=active_donors)
@@ -18,6 +24,11 @@ def emergency_list():
 @emergency_bp.route('/create', methods=['GET', 'POST'])
 def create_emergency():
     """Create new emergency request"""
+    # Require login to create emergency request
+    if 'user_id' not in session:
+        flash('Please login to create an emergency request.', 'error')
+        return redirect(url_for('auth.login'))
+    
     if request.method == 'POST':
         patient_name = request.form.get('patient_name')
         blood_type = request.form.get('blood_type')
@@ -29,7 +40,14 @@ def create_emergency():
         if not (patient_name and blood_type and units_needed and urgency and hospital and contact and city):
             flash('Please fill all required fields', 'error')
             return render_template('emergency_create.html')
+        
+        # Get patient_id if user is logged in as patient
+        patient_id = None
+        if session.get('user_type') == 'patient' and session.get('user_id'):
+            patient_id = session['user_id']
+        
         new_request = EmergencyRequest(
+            patient_id=patient_id,
             patient_name=patient_name,
             blood_type=blood_type,
             units_needed=int(units_needed),

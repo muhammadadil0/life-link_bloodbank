@@ -566,17 +566,70 @@ function reverseGeocode(lat, lon) {
         });
 }
 document.getElementById('currentLocationBtn')?.addEventListener('click', function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(pos) {
-            setLatLon(pos.coords.latitude, pos.coords.longitude);
-            initMap(pos.coords.latitude, pos.coords.longitude);
-            reverseGeocode(pos.coords.latitude, pos.coords.longitude);
-            if (typeof map !== 'undefined' && map) {
-                setTimeout(function() { map.invalidateSize(); }, 300);
+        // Show loading state
+        btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 inline animate-spin mr-2"></i>Getting location...';
+        btn.disabled = true;
+        
+        console.log('Requesting geolocation...');
+        
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                console.log('Location received:', pos.coords.latitude, pos.coords.longitude);
+                setLatLon(pos.coords.latitude, pos.coords.longitude);
+                initMap(pos.coords.latitude, pos.coords.longitude);
+                reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+                if (typeof map !== 'undefined' && map) {
+                    setTimeout(function() { map.invalidateSize(); }, 300);
+                }
+                
+                // Show success
+                btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 inline mr-2"></i>Location Set!';
+                btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                btn.classList.add('bg-green-500');
+                
+                setTimeout(function() {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-500');
+                    btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                    btn.disabled = false;
+                    lucide.createIcons();
+                }, 2000);
+            },
+            function(error) {
+                console.error('Geolocation error:', error);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+                
+                let errorMsg = 'Unable to get your location. ';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg += 'Please allow location access in your browser settings.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg += 'Location information is unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg += 'Location request timed out.';
+                        break;
+                    default:
+                        errorMsg += 'An unknown error occurred.';
+                }
+                
+                alert(errorMsg);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
             }
-        });
+        );
     } else {
-        alert('Geolocation is not supported by your browser.');
+        alert('Geolocation is not supported by your browser. Please enter your address manually.');
     }
 });
 // Initialize map with default location (center of US)

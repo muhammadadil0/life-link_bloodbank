@@ -14,14 +14,13 @@ def donor_dashboard():
         return redirect(url_for('auth.login'))
     if session.get('user_type') != 'donor':
         flash('Access denied: Donor dashboard is for donors only.', 'error')
-        return redirect(url_for('dashboard.patient_dashboard'))
+        return redirect(url_for('dashboard.patient_landing'))
     donor = Donor.query.get(session['user_id'])
     if not donor:
         flash('Donor not found.', 'error')
         return redirect(url_for('auth.login'))
     emergency_requests = EmergencyRequest.query.order_by(EmergencyRequest.created_at.desc()).all()
-    patients = Patient.query.all()
-    return render_template('dashboard/donor.html', donor_data=donor, emergency_requests=emergency_requests, patients=patients)
+    return render_template('dashboard/donor.html', donor_data=donor, emergency_requests=emergency_requests)
 
 @dashboard_bp.route('/dashboard/admin')
 def admin_dashboard():
@@ -143,6 +142,19 @@ def donation_history():
 @dashboard_bp.route('/dashboard/patient')
 def patient_landing():
     """Patient landing page route (new design)"""
+    # Debug logging
+    print(f"DEBUG: Session data: user_id={session.get('user_id')}, user_type={session.get('user_type')}")
+    
+    if 'user_id' not in session:
+        print("DEBUG: No user_id in session, redirecting to login")
+        return redirect(url_for('auth.login'))
+    
+    if session.get('user_type') != 'patient':
+        print(f"DEBUG: User type is '{session.get('user_type')}', not 'patient'. Redirecting to donor dashboard")
+        flash('Access denied: Patient dashboard is for patients only.', 'error')
+        return redirect(url_for('dashboard.donor_dashboard'))
+    
+    print("DEBUG: User is patient, loading patient dashboard")
     from models import Donor
     active_donors = Donor.query.filter_by(is_available=True).all()
     active_donor_count = Donor.query.filter_by(is_available=True).count()

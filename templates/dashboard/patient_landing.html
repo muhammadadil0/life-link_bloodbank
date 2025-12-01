@@ -262,8 +262,13 @@ function sendMessage() {
 }
 socket.on('receive_message', function(data) {
     console.log('Received message:', data); // Debugging line
+    
     // Only show notification if the current user is the recipient
     if (myId == data.receiver_id && myType == data.receiver_type) {
+        // Always show browser notification with sound and title flash
+        showNotification(data.sender_name, data.message);
+        
+        // Show toastr notification
         if (typeof toastr !== 'undefined') {
             toastr.options = {
                 "closeButton": true,
@@ -272,8 +277,6 @@ socket.on('receive_message', function(data) {
                 "timeOut": "5000"
             };
             toastr.info('New message from ' + data.sender_name + ': ' + data.message);
-        } else {
-            console.log('Toastr is not defined!');
         }
     }
     let chatBox = document.getElementById('chatMessages');

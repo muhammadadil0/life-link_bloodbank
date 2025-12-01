@@ -1,646 +1,913 @@
-{% extends "base.html" %}
-
-{% block title %}Donors - LifeLink{% endblock %}
-
-{% block extra_head %}
+{% extends "base.html" %} {% block title %}Donors - LifeLink{% endblock %} {%
+block extra_head %}
 <style>
-    /* Animated Blood Drop Balls (background) */
-    .blood-ball {
-        position: absolute;
-        background: radial-gradient(circle at 60% 40%, #ef4444 70%, #b91c1c 100%);
-        border-radius: 50% 50% 60% 40% / 60% 40% 50% 50%;
-        opacity: 0.13;
-        filter: blur(2px);
-        animation: blood-float 10s ease-in-out infinite;
+  /* Animated Blood Drop Balls (background) */
+  .blood-ball {
+    position: absolute;
+    background: radial-gradient(circle at 60% 40%, #ef4444 70%, #b91c1c 100%);
+    border-radius: 50% 50% 60% 40% / 60% 40% 50% 50%;
+    opacity: 0.13;
+    filter: blur(2px);
+    animation: blood-float 10s ease-in-out infinite;
+  }
+  @keyframes blood-float {
+    0%,
+    100% {
+      transform: translateY(0) scale(1) rotate(0deg);
     }
-    @keyframes blood-float {
-        0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
-        20% { transform: translateY(-30px) scale(1.08) rotate(8deg); }
-        50% { transform: translateY(40px) scale(0.95) rotate(-6deg); }
-        80% { transform: translateY(-15px) scale(1.05) rotate(4deg); }
+    20% {
+      transform: translateY(-30px) scale(1.08) rotate(8deg);
     }
-    .glass-card {
-        background: rgba(255,255,255,0.95);
-        backdrop-filter: blur(18px);
-        border: 1px solid rgba(255,255,255,0.25);
-        border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(220,38,38,0.08), 0 4px 12px rgba(0,0,0,0.04);
-        transition: all 0.4s cubic-bezier(.4,0,.2,1);
-        position: relative;
-        overflow: hidden;
+    50% {
+      transform: translateY(40px) scale(0.95) rotate(-6deg);
     }
-    .glass-card:hover {
-        transform: translateY(-8px) scale(1.03);
-        box-shadow: 0 20px 40px rgba(220,38,38,0.15), 0 8px 24px rgba(0,0,0,0.08);
-        border-color: #ef4444;
+    80% {
+      transform: translateY(-15px) scale(1.05) rotate(4deg);
     }
-    .fade-in-up { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .fade-in-up.visible { opacity: 1; transform: translateY(0); }
-    .floating-icon {
-        position: absolute;
-        opacity: 0.7;
-        animation: float-hero 8s ease-in-out infinite;
+  }
+  .glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(220, 38, 38, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .glass-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.08);
+    border-color: #ef4444;
+  }
+  .fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .floating-icon {
+    position: absolute;
+    opacity: 0.7;
+    animation: float-hero 8s ease-in-out infinite;
+  }
+  @keyframes float-hero {
+    0%,
+    100% {
+      transform: translateY(0) scale(1) rotate(0deg);
     }
-    @keyframes float-hero {
-        0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
-        50% { transform: translateY(-24px) scale(1.08) rotate(8deg); }
+    50% {
+      transform: translateY(-24px) scale(1.08) rotate(8deg);
     }
-    .glow-cta {
-        box-shadow: 0 0 30px 0 rgba(59,130,246,0.18), 0 8px 32px rgba(0,0,0,0.10);
-        border-radius: 1rem;
-        transition: box-shadow 0.4s;
-        position: relative;
-        z-index: 1;
-    }
-    .glow-cta:hover {
-        box-shadow: 0 0 60px 10px rgba(59,130,246,0.28), 0 16px 48px rgba(0,0,0,0.15);
-    }
-    .slide-in-left { opacity: 0; transform: translateX(-60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-right { opacity: 0; transform: translateX(60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-up { opacity: 0; transform: translateY(60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-left.visible, .slide-in-right.visible, .slide-in-up.visible { opacity: 1; transform: translateX(0) translateY(0); }
-    .emergency-red-btn {
-        background: #ef4444;
-        color: #fff;
-        border: none;
-        padding: 12px 0;
-        border-radius: 16px;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: background 0.2s, transform 0.2s;
-        box-shadow: 0 2px 8px rgba(220,38,38,0.10);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        min-width: 180px;
-        max-width: 240px;
-        margin: 0 auto;
-    }
-    .emergency-red-btn:hover {
-        background: #b91c1c;
-        transform: scale(1.05);
-    }
-    .donor-card {
-        background: rgba(255,255,255,0.95);
-        border-radius: 24px;
-        box-shadow: 0 10px 40px rgba(220,38,38,0.08), 0 4px 12px rgba(0,0,0,0.04);
-        border: 1px solid #f3f4f6;
-        display: flex;
-        max-width: 600px;
-        margin: 32px auto;
-        overflow: hidden;
-        transition: box-shadow 0.4s, transform 0.4s;
-    }
-    .donor-card:hover {
-        box-shadow: 0 20px 40px rgba(220,38,38,0.15), 0 8px 24px rgba(0,0,0,0.08);
-        transform: translateY(-8px) scale(1.03);
-    }
-    .donor-card .accent {
-        width: 8px;
-        background: #ef4444;
-        border-radius: 24px 0 0 24px;
-    }
-    .donor-card .content {
-        flex: 1;
-        padding: 48px;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    .donor-card h3 {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #111827;
-        margin: 0 0 8px 0;
-    }
-    .donor-card p, .donor-card span, .donor-card .info {
-        color: #6b7280;
-        font-size: 1rem;
-    }
-    .donor-card .blood-type-badge {
-        background: linear-gradient(135deg, #ef4444 0%, #ec4899 100%);
-        color: #fff;
-        padding: 12px 24px;
-        border-radius: 16px;
-        font-size: 1.25rem;
-        font-weight: bold;
-        border: 2px solid rgba(255,255,255,0.4);
-        display: flex;
-        align-items: center;
-    }
-    .donor-card .status {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-    .donor-card .status-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .donor-card .status-dot.available { background: #22c55e; }
-    .donor-card .status-dot.unavailable { background: #ef4444; }
-    .donor-card .actions {
-        display: flex;
-        gap: 16px;
-        margin-left: 32px;
-    }
-    .donor-card .action-btn {
-        background: #3b82f6;
-        color: #fff;
-        padding: 12px 24px;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 500;
-        border: none;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    .donor-card .action-btn:hover {
-        background: #2563eb;
-    }
-    .slide-in-left { opacity: 0; transform: translateX(-60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-right { opacity: 0; transform: translateX(60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-up { opacity: 0; transform: translateY(60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-left.visible, .slide-in-right.visible, .slide-in-up.visible { opacity: 1; transform: translateX(0) translateY(0); }
+  }
+  .glow-cta {
+    box-shadow: 0 0 30px 0 rgba(59, 130, 246, 0.18),
+      0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    transition: box-shadow 0.4s;
+    position: relative;
+    z-index: 1;
+  }
+  .glow-cta:hover {
+    box-shadow: 0 0 60px 10px rgba(59, 130, 246, 0.28),
+      0 16px 48px rgba(0, 0, 0, 0.15);
+  }
+  .slide-in-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .slide-in-right {
+    opacity: 0;
+    transform: translateX(60px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .slide-in-up {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .slide-in-left.visible,
+  .slide-in-right.visible,
+  .slide-in-up.visible {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+  .emergency-red-btn {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 12px 0;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 180px;
+    max-width: 240px;
+    margin: 0 auto;
+  }
+  .emergency-red-btn:hover {
+    background: #b91c1c;
+    transform: scale(1.05);
+  }
+  .donor-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(220, 38, 38, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f3f4f6;
+    display: flex;
+    max-width: 600px;
+    margin: 32px auto;
+    overflow: hidden;
+    transition: box-shadow 0.4s, transform 0.4s;
+  }
+  .donor-card:hover {
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-8px) scale(1.03);
+  }
+  .donor-card .accent {
+    width: 8px;
+    background: #ef4444;
+    border-radius: 24px 0 0 24px;
+  }
+  .donor-card .content {
+    flex: 1;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .donor-card h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #111827;
+    margin: 0 0 8px 0;
+  }
+  .donor-card p,
+  .donor-card span,
+  .donor-card .info {
+    color: #6b7280;
+    font-size: 1rem;
+  }
+  .donor-card .blood-type-badge {
+    background: linear-gradient(135deg, #ef4444 0%, #ec4899 100%);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 16px;
+    font-size: 1.25rem;
+    font-weight: bold;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+  }
+  .donor-card .status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .donor-card .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .donor-card .status-dot.available {
+    background: #22c55e;
+  }
+  .donor-card .status-dot.unavailable {
+    background: #ef4444;
+  }
+  .donor-card .actions {
+    display: flex;
+    gap: 16px;
+    margin-left: 32px;
+  }
+  .donor-card .action-btn {
+    background: #3b82f6;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .donor-card .action-btn:hover {
+    background: #2563eb;
+  }
+  .slide-in-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .slide-in-right {
+    opacity: 0;
+    transform: translateX(60px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .slide-in-up {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .slide-in-left.visible,
+  .slide-in-right.visible,
+  .slide-in-up.visible {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
 
-    /* Force menu button design to match landing page */
-    .menu-btn {
-        background: linear-gradient(135deg, #fff 60%, #f3f4f6 100%) !important;
-        border: 1.5px solid #e5e7eb !important;
-        box-shadow: 0 2px 8px rgba(239,68,68,0.07) !important;
-        transition: box-shadow 0.2s, border 0.2s !important;
-        position: relative !important;
-    }
-    .menu-btn:active, .menu-btn:focus {
-        box-shadow: 0 4px 16px rgba(239,68,68,0.13) !important;
-        border-color: #ef4444 !important;
-    }
-    .menu-btn-label {
-        position: absolute !important;
-        top: 100% !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        font-size: 0.75rem !important;
-        color: #ef4444 !important;
-        font-weight: 600 !important;
-        margin-top: 0.15rem !important;
-        letter-spacing: 0.03em !important;
-        opacity: 0.85 !important;
-        pointer-events: none !important;
-    }
+  /* Force menu button design to match landing page */
+  .menu-btn {
+    background: linear-gradient(135deg, #fff 60%, #f3f4f6 100%) !important;
+    border: 1.5px solid #e5e7eb !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.07) !important;
+    transition: box-shadow 0.2s, border 0.2s !important;
+    position: relative !important;
+  }
+  .menu-btn:active,
+  .menu-btn:focus {
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.13) !important;
+    border-color: #ef4444 !important;
+  }
+  .menu-btn-label {
+    position: absolute !important;
+    top: 100% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    font-size: 0.75rem !important;
+    color: #ef4444 !important;
+    font-weight: 600 !important;
+    margin-top: 0.15rem !important;
+    letter-spacing: 0.03em !important;
+    opacity: 0.85 !important;
+    pointer-events: none !important;
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <!-- Animated Blood Drop Balls Background (Global) -->
 <div class="fixed inset-0 -z-10 pointer-events-none">
-    <div class="blood-ball" style="top: 8%; left: 6%; width: 90px; height: 90px; animation-delay: 0s;"></div>
-    <div class="blood-ball" style="top: 65%; left: 12%; width: 70px; height: 70px; animation-delay: 2s;"></div>
-    <div class="blood-ball" style="top: 25%; left: 80%; width: 110px; height: 110px; animation-delay: 1.5s;"></div>
-    <div class="blood-ball" style="top: 78%; left: 72%; width: 80px; height: 80px; animation-delay: 3s;"></div>
-    <div class="blood-ball" style="top: 52%; left: 48%; width: 120px; height: 120px; animation-delay: 4s;"></div>
-    <div class="blood-ball" style="top: 40%; left: 30%; width: 100px; height: 100px; animation-delay: 2.5s;"></div>
+  <div
+    class="blood-ball"
+    style="top: 8%; left: 6%; width: 90px; height: 90px; animation-delay: 0s"
+  ></div>
+  <div
+    class="blood-ball"
+    style="top: 65%; left: 12%; width: 70px; height: 70px; animation-delay: 2s"
+  ></div>
+  <div
+    class="blood-ball"
+    style="
+      top: 25%;
+      left: 80%;
+      width: 110px;
+      height: 110px;
+      animation-delay: 1.5s;
+    "
+  ></div>
+  <div
+    class="blood-ball"
+    style="top: 78%; left: 72%; width: 80px; height: 80px; animation-delay: 3s"
+  ></div>
+  <div
+    class="blood-ball"
+    style="
+      top: 52%;
+      left: 48%;
+      width: 120px;
+      height: 120px;
+      animation-delay: 4s;
+    "
+  ></div>
+  <div
+    class="blood-ball"
+    style="
+      top: 40%;
+      left: 30%;
+      width: 100px;
+      height: 100px;
+      animation-delay: 2.5s;
+    "
+  ></div>
 </div>
 
 <!-- Hero Section -->
 <section class="py-20 px-6 bg-white text-gray-900 relative overflow-hidden">
-    <!-- Animated Floating Icons -->
-    <div class="absolute inset-0 pointer-events-none z-0">
-        <div class="floating-icon" style="top: 12%; left: 8%; animation-delay: 0s;"><i data-lucide="heart" class="w-8 h-8 text-white/40"></i></div>
-        <div class="floating-icon" style="top: 30%; left: 85%; animation-delay: 1.5s;"><i data-lucide="droplet" class="w-7 h-7 text-white/30"></i></div>
-        <div class="floating-icon" style="top: 65%; left: 15%; animation-delay: 2.5s;"><i data-lucide="plus" class="w-9 h-9 text-white/20"></i></div>
-        <div class="floating-icon" style="top: 80%; left: 80%; animation-delay: 3.5s;"><i data-lucide="heart" class="w-7 h-7 text-white/30"></i></div>
-        <div class="floating-icon" style="top: 50%; left: 50%; animation-delay: 2s;"><i data-lucide="droplet" class="w-10 h-10 text-white/25"></i></div>
+  <!-- Animated Floating Icons -->
+  <div class="absolute inset-0 pointer-events-none z-0">
+    <div class="floating-icon" style="top: 12%; left: 8%; animation-delay: 0s">
+      <i data-lucide="heart" class="w-8 h-8 text-white/40"></i>
     </div>
-    <div class="container mx-auto max-w-4xl text-center fade-in-up relative z-10">
-        <div class="mb-8 glass-card shadow-2xl p-10 inline-block hero-glow relative overflow-hidden">
-            <!-- Animated Blood Drop Background -->
-            <div class="absolute inset-0 z-0 pointer-events-none">
-                <div class="blood-ball" style="top: 10%; left: 15%; width: 60px; height: 60px; animation-delay: 0s;"></div>
-                <div class="blood-ball" style="top: 60%; left: 80%; width: 80px; height: 80px; animation-delay: 1.5s;"></div>
-                <div class="blood-ball" style="top: 40%; left: 50%; width: 100px; height: 100px; animation-delay: 2.5s;"></div>
-            </div>
-            <div class="relative z-10">
-                <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm shadow-lg">
-                    <i data-lucide="users" class="w-12 h-12 text-red-500"></i>
-                </div>
-                <h1 class="text-5xl md:text-6xl font-extrabold font-display mb-4 text-gray-900 drop-shadow-lg tracking-tight">
-                    Our Donors
-                </h1>
-                <p class="text-2xl md:text-3xl mb-6 max-w-2xl mx-auto leading-relaxed font-semibold drop-shadow bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent" style="letter-spacing: 1px;">
-                    Meet the heroes who save lives through blood donation. Every donor makes a difference.
-                </p>
-                <div class="mt-2 text-lg md:text-xl italic text-red-600 font-semibold fade-in-up">
-                    "A single donor can save up to three lives. Be the reason for someone's tomorrow."
-                </div>
-                <div class="mt-4 text-base text-gray-700 font-medium fade-in-up">
-                    <span class="inline-block bg-red-100 text-red-600 px-4 py-2 rounded-full shadow">1,247 donors and counting!</span>
-                </div>
-                <div class="mt-4 flex flex-col sm:flex-row gap-4 justify-center mb-2">
-                    <a href="{{ url_for('auth.register') }}" class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow transition-all duration-300 inline-flex items-center justify-center">
-                        <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-                        Become a Donor
-                    </a>
-                </div>
-            </div>
-            <!-- Decorative SVG Wave Divider -->
-            <div class="absolute left-0 right-0 bottom-0" style="z-index:2;">
-                <svg viewBox="0 0 500 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-12">
-                    <path d="M0 20 Q125 40 250 20 T500 20 V40 H0 V20Z" fill="rgba(239,68,68,0.13)"/>
-                </svg>
-            </div>
+    <div
+      class="floating-icon"
+      style="top: 30%; left: 85%; animation-delay: 1.5s"
+    >
+      <i data-lucide="droplet" class="w-7 h-7 text-white/30"></i>
+    </div>
+    <div
+      class="floating-icon"
+      style="top: 65%; left: 15%; animation-delay: 2.5s"
+    >
+      <i data-lucide="plus" class="w-9 h-9 text-white/20"></i>
+    </div>
+    <div
+      class="floating-icon"
+      style="top: 80%; left: 80%; animation-delay: 3.5s"
+    >
+      <i data-lucide="heart" class="w-7 h-7 text-white/30"></i>
+    </div>
+    <div class="floating-icon" style="top: 50%; left: 50%; animation-delay: 2s">
+      <i data-lucide="droplet" class="w-10 h-10 text-white/25"></i>
+    </div>
+  </div>
+  <div class="container mx-auto max-w-4xl text-center fade-in-up relative z-10">
+    <div
+      class="mb-8 glass-card shadow-2xl p-10 inline-block hero-glow relative overflow-hidden"
+    >
+      <!-- Animated Blood Drop Background -->
+      <div class="absolute inset-0 z-0 pointer-events-none">
+        <div
+          class="blood-ball"
+          style="
+            top: 10%;
+            left: 15%;
+            width: 60px;
+            height: 60px;
+            animation-delay: 0s;
+          "
+        ></div>
+        <div
+          class="blood-ball"
+          style="
+            top: 60%;
+            left: 80%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 1.5s;
+          "
+        ></div>
+        <div
+          class="blood-ball"
+          style="
+            top: 40%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            animation-delay: 2.5s;
+          "
+        ></div>
+      </div>
+      <div class="relative z-10">
+        <div
+          class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm shadow-lg"
+        >
+          <i data-lucide="users" class="w-12 h-12 text-red-500"></i>
         </div>
+        <h1
+          class="text-5xl md:text-6xl font-extrabold font-display mb-4 text-gray-900 drop-shadow-lg tracking-tight"
+        >
+          Our Donors
+        </h1>
+        <p
+          class="text-2xl md:text-3xl mb-6 max-w-2xl mx-auto leading-relaxed font-semibold drop-shadow bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent"
+          style="letter-spacing: 1px"
+        >
+          Meet the heroes who save lives through blood donation. Every donor
+          makes a difference.
+        </p>
+        <div
+          class="mt-2 text-lg md:text-xl italic text-red-600 font-semibold fade-in-up"
+        >
+          "A single donor can save up to three lives. Be the reason for
+          someone's tomorrow."
+        </div>
+        <div class="mt-4 text-base text-gray-700 font-medium fade-in-up">
+          <span
+            class="inline-block bg-red-100 text-red-600 px-4 py-2 rounded-full shadow"
+            >1,247 donors and counting!</span
+          >
+        </div>
+        {% if session.user_type != 'patient' %}
+        <div class="mt-4 flex flex-col sm:flex-row gap-4 justify-center mb-2">
+          <a
+            href="{{ url_for('auth.register') }}"
+            class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow transition-all duration-300 inline-flex items-center justify-center"
+          >
+            <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
+            Become a Donor
+          </a>
+        </div>
+        {% endif %}
+      </div>
+      <!-- Decorative SVG Wave Divider -->
+      <div class="absolute left-0 right-0 bottom-0" style="z-index: 2">
+        <svg
+          viewBox="0 0 500 40"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-full h-12"
+        >
+          <path
+            d="M0 20 Q125 40 250 20 T500 20 V40 H0 V20Z"
+            fill="rgba(239,68,68,0.13)"
+          />
+        </svg>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- Motivational/Hadith Section -->
 <section class="relative w-full max-w-5xl mx-auto mt-12 mb-12 px-4 fade-in-up">
-    <div class="flex flex-row gap-8 items-stretch overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-red-200 scrollbar-track-red-50 snap-x">
-        <div class="min-w-[320px] max-w-xs flex-1 bg-gradient-to-br from-red-100 via-white to-red-50 rounded-2xl shadow-xl p-8 border-2 border-red-200 relative overflow-hidden fade-in-up slide-in-left snap-center hadith-animate">
-            <div class="absolute -top-6 -right-6 opacity-20 text-red-400 text-8xl select-none pointer-events-none font-display">ﷺ</div>
-            <blockquote class="text-xl md:text-2xl italic text-gray-800 text-center leading-relaxed mb-4">
-                "Whoever saves one life, it is as if he had saved mankind entirely."
-            </blockquote>
-            <div class="text-right text-gray-600 font-medium mb-2">— Qur'an 5:32</div>
-            <div class="text-center text-red-700 text-lg font-bold mt-2" style="font-family: 'Noto Nastaliq Urdu', serif;">
-                "جس نے ایک جان کو بچایا، گویا اس نے پوری انسانیت کو بچایا۔"
-            </div>
-        </div>
-        <div class="min-w-[320px] max-w-xs flex-1 bg-gradient-to-br from-red-100 via-white to-red-50 rounded-2xl shadow-xl p-8 border-2 border-red-200 relative overflow-hidden fade-in-up slide-in-right snap-center hadith-animate">
-            <div class="absolute -top-6 -right-6 opacity-20 text-red-400 text-8xl select-none pointer-events-none font-display">ﷺ</div>
-            <blockquote class="text-lg md:text-xl italic text-gray-800 text-center leading-relaxed mb-2">
-                "The best among you are those who bring greatest benefits to many others."
-            </blockquote>
-            <div class="text-right text-gray-600 font-medium mb-2">— Prophet Muhammad ﷺ (Daraqutni, Hasan)</div>
-            <div class="text-center text-red-700 text-base font-bold mt-2" style="font-family: 'Noto Nastaliq Urdu', serif;">
-                "تم میں سب سے بہتر وہ ہے جو دوسروں کو سب سے زیادہ فائدہ پہنچائے۔"
-            </div>
-        </div>
-        <div class="min-w-[320px] max-w-xs flex-1 bg-gradient-to-br from-red-100 via-white to-red-50 rounded-2xl shadow-xl p-8 border-2 border-red-200 relative overflow-hidden fade-in-up slide-in-up snap-center hadith-animate">
-            <div class="absolute -top-6 -right-6 opacity-20 text-red-400 text-8xl select-none pointer-events-none font-display">ﷺ</div>
-            <blockquote class="text-lg md:text-xl italic text-gray-800 text-center leading-relaxed mb-2">
-                "Allah is helping the servant as long as the servant is helping his brother."
-            </blockquote>
-            <div class="text-right text-gray-600 font-medium mb-2">— Prophet Muhammad ﷺ (Muslim)</div>
-            <div class="text-center text-red-700 text-base font-bold mt-2" style="font-family: 'Noto Nastaliq Urdu', serif;">
-                "اللہ اپنے بندے کی مدد کرتا ہے جب تک بندہ اپنے بھائی کی مدد کرتا رہے۔"
-            </div>
-        </div>
+  <div
+    class="flex flex-row gap-8 items-stretch overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-red-200 scrollbar-track-red-50 snap-x"
+  >
+    <div
+      class="min-w-[320px] max-w-xs flex-1 bg-gradient-to-br from-red-100 via-white to-red-50 rounded-2xl shadow-xl p-8 border-2 border-red-200 relative overflow-hidden fade-in-up slide-in-left snap-center hadith-animate"
+    >
+      <div
+        class="absolute -top-6 -right-6 opacity-20 text-red-400 text-8xl select-none pointer-events-none font-display"
+      >
+        ﷺ
+      </div>
+      <blockquote
+        class="text-xl md:text-2xl italic text-gray-800 text-center leading-relaxed mb-4"
+      >
+        "Whoever saves one life, it is as if he had saved mankind entirely."
+      </blockquote>
+      <div class="text-right text-gray-600 font-medium mb-2">— Qur'an 5:32</div>
+      <div
+        class="text-center text-red-700 text-lg font-bold mt-2"
+        style="font-family: 'Noto Nastaliq Urdu', serif"
+      >
+        "جس نے ایک جان کو بچایا، گویا اس نے پوری انسانیت کو بچایا۔"
+      </div>
     </div>
-    <style>
-    .slide-in-left { opacity: 0; transform: translateX(-60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-right { opacity: 0; transform: translateX(60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-up { opacity: 0; transform: translateY(60px); transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94); }
-    .slide-in-left.visible, .slide-in-right.visible, .slide-in-up.visible { opacity: 1; transform: translateX(0) translateY(0); }
-    </style>
+    <div
+      class="min-w-[320px] max-w-xs flex-1 bg-gradient-to-br from-red-100 via-white to-red-50 rounded-2xl shadow-xl p-8 border-2 border-red-200 relative overflow-hidden fade-in-up slide-in-right snap-center hadith-animate"
+    >
+      <div
+        class="absolute -top-6 -right-6 opacity-20 text-red-400 text-8xl select-none pointer-events-none font-display"
+      >
+        ﷺ
+      </div>
+      <blockquote
+        class="text-lg md:text-xl italic text-gray-800 text-center leading-relaxed mb-2"
+      >
+        "The best among you are those who bring greatest benefits to many
+        others."
+      </blockquote>
+      <div class="text-right text-gray-600 font-medium mb-2">
+        — Prophet Muhammad ﷺ (Daraqutni, Hasan)
+      </div>
+      <div
+        class="text-center text-red-700 text-base font-bold mt-2"
+        style="font-family: 'Noto Nastaliq Urdu', serif"
+      >
+        "تم میں سب سے بہتر وہ ہے جو دوسروں کو سب سے زیادہ فائدہ پہنچائے۔"
+      </div>
+    </div>
+    <div
+      class="min-w-[320px] max-w-xs flex-1 bg-gradient-to-br from-red-100 via-white to-red-50 rounded-2xl shadow-xl p-8 border-2 border-red-200 relative overflow-hidden fade-in-up slide-in-up snap-center hadith-animate"
+    >
+      <div
+        class="absolute -top-6 -right-6 opacity-20 text-red-400 text-8xl select-none pointer-events-none font-display"
+      >
+        ﷺ
+      </div>
+      <blockquote
+        class="text-lg md:text-xl italic text-gray-800 text-center leading-relaxed mb-2"
+      >
+        "Allah is helping the servant as long as the servant is helping his
+        brother."
+      </blockquote>
+      <div class="text-right text-gray-600 font-medium mb-2">
+        — Prophet Muhammad ﷺ (Muslim)
+      </div>
+      <div
+        class="text-center text-red-700 text-base font-bold mt-2"
+        style="font-family: 'Noto Nastaliq Urdu', serif"
+      >
+        "اللہ اپنے بندے کی مدد کرتا ہے جب تک بندہ اپنے بھائی کی مدد کرتا رہے۔"
+      </div>
+    </div>
+  </div>
+  <style>
+    .slide-in-left {
+      opacity: 0;
+      transform: translateX(-60px);
+      transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .slide-in-right {
+      opacity: 0;
+      transform: translateX(60px);
+      transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .slide-in-up {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .slide-in-left.visible,
+    .slide-in-right.visible,
+    .slide-in-up.visible {
+      opacity: 1;
+      transform: translateX(0) translateY(0);
+    }
+  </style>
 </section>
 
 <!-- Search and Filter -->
 <section class="py-12 px-6 relative z-10">
-    <div class="container mx-auto max-w-5xl">
-        <div class="glass-card p-8 mb-8 fade-in-up">
-            <div class="grid md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="donor-search">Search</label>
-                    <input id="donor-search" type="text" placeholder="Search donors..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="donor-blood-type">Blood Type</label>
-                    <select id="donor-blood-type" name="bloodType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Blood Types</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="donor-city">City</label>
-                    <select id="donor-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Cities</option>
-                        <option value="karachi">Karachi</option>
-                        <option value="lahore">Lahore</option>
-                        <option value="islamabad">Islamabad</option>
-                        <option value="faisalabad">Faisalabad</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="donor-availability">Availability</label>
-                    <select id="donor-availability" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">All</option>
-                        <option value="available">Available</option>
-                        <option value="unavailable">Unavailable</option>
-                    </select>
-                </div>
-            </div>
+  <div class="container mx-auto max-w-5xl">
+    <div class="glass-card p-8 mb-8 fade-in-up">
+      <div class="grid md:grid-cols-4 gap-4">
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 mb-2"
+            for="donor-search"
+            >Search</label
+          >
+          <input
+            id="donor-search"
+            type="text"
+            placeholder="Search donors..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-
-        <!-- Donors Grid -->
-        <style>
-        /* Minimal CSS for donor grid and card, mimicking Tailwind look */
-        #donor-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 32px;
-            margin-bottom: 32px;
-        }
-        .donor-card {
-            background: rgba(255,255,255,0.95);
-            border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(220,38,38,0.08), 0 4px 12px rgba(0,0,0,0.04);
-            border: 1px solid #f3f4f6;
-            display: flex;
-            max-width: 600px;
-            margin: 32px auto;
-            overflow: hidden;
-            transition: box-shadow 0.4s, transform 0.4s;
-        }
-        .donor-card:hover {
-            box-shadow: 0 20px 40px rgba(220,38,38,0.15), 0 8px 24px rgba(0,0,0,0.08);
-            transform: translateY(-8px) scale(1.03);
-        }
-        .donor-card .accent {
-            width: 8px;
-            background: #ef4444;
-            border-radius: 24px 0 0 24px;
-        }
-        .donor-card .content {
-            flex: 1;
-            padding: 48px;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .donor-card h3 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #111827;
-            margin: 0 0 8px 0;
-        }
-        .donor-card p, .donor-card span, .donor-card .info {
-            color: #6b7280;
-            font-size: 1rem;
-        }
-        .donor-card .blood-type-badge {
-            background: linear-gradient(135deg, #ef4444 0%, #ec4899 100%);
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 16px;
-            font-size: 1.25rem;
-            font-weight: bold;
-            border: 2px solid rgba(255,255,255,0.4);
-            display: flex;
-            align-items: center;
-        }
-        .donor-card .status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        .donor-card .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .donor-card .status-dot.available { background: #22c55e; }
-        .donor-card .status-dot.unavailable { background: #ef4444; }
-        .donor-card .actions {
-            display: flex;
-            gap: 16px;
-            margin-left: 32px;
-        }
-        .donor-card .action-btn {
-            background: #3b82f6;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .donor-card .action-btn:hover {
-            background: #2563eb;
-        }
-        .emergency-red-btn {
-            background: #ef4444;
-            color: #fff;
-            border: none;
-            padding: 12px 0;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 8px rgba(220,38,38,0.10);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-        }
-        .emergency-red-btn:hover {
-            background: #b91c1c;
-            transform: scale(1.05);
-        }
-        </style>
-        <div id="donor-grid"></div>
-        <!-- Load More (optional, not AJAX) -->
-        <div class="text-center mt-8 fade-in-up">
-            <button class="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300">
-                Load More Donors
-            </button>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 mb-2"
+            for="donor-blood-type"
+            >Blood Type</label
+          >
+          <select
+            id="donor-blood-type"
+            name="bloodType"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Blood Types</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
         </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 mb-2"
+            for="donor-city"
+            >City</label
+          >
+          <select
+            id="donor-city"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Cities</option>
+            <option value="karachi">Karachi</option>
+            <option value="lahore">Lahore</option>
+            <option value="islamabad">Islamabad</option>
+            <option value="faisalabad">Faisalabad</option>
+          </select>
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 mb-2"
+            for="donor-availability"
+            >Availability</label
+          >
+          <select
+            id="donor-availability"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All</option>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
+          </select>
+        </div>
+      </div>
     </div>
+
+    <!-- Donors Grid -->
+    <style>
+      /* Minimal CSS for donor grid and card, mimicking Tailwind look */
+      #donor-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 40px;
+        margin-bottom: 32px;
+        padding: 20px 0;
+        width: 100%;
+      }
+      @media (min-width: 768px) {
+        #donor-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (min-width: 1280px) {
+        #donor-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .donor-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 2px solid #fee2e2;
+        border-left: 4px solid #ef4444;
+        padding: 24px;
+        width: 100%;
+        min-height: 300px;
+        margin: 0 !important;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+      .donor-card:hover {
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+        transform: translateY(-2px);
+        border-color: #fecaca;
+      }
+      .status-badge {
+        background: #ef4444;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .status-badge.available {
+        background: #22c55e;
+      }
+      .status-badge.unavailable {
+        background: #ef4444;
+      }
+      .directions-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ef4444;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        margin-top: auto;
+      }
+      .directions-btn:hover {
+        background: #dc2626;
+      }
+    </style>
+    <div id="donor-grid"></div>
+    <!-- Load More (optional, not AJAX) -->
+    <div class="text-center mt-8 fade-in-up">
+      <button
+        class="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
+      >
+        Load More Donors
+      </button>
+    </div>
+  </div>
 </section>
 
 <!-- Statistics Section -->
 <section class="py-16 bg-white text-gray-900">
-    <div class="container mx-auto px-6">
-        <div class="grid md:grid-cols-2 gap-6 text-center">
-            <div class="glass-card p-6 fade-in-up">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="users" class="w-6 h-6 text-blue-500"></i>
-                </div>
-                <div class="text-2xl font-bold text-gray-900">{{ total_donors }}</div>
-                <div class="text-sm text-gray-600">Total Donors</div>
-            </div>
-            <div class="glass-card p-6 fade-in-up">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="check-circle" class="w-6 h-6 text-green-500"></i>
-                </div>
-                <div class="text-2xl font-bold text-gray-900">{{ active_donors }}</div>
-                <div class="text-sm text-gray-600">Active Donors</div>
-            </div>
+  <div class="container mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-6 text-center">
+      <div class="glass-card p-6 fade-in-up">
+        <div
+          class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4"
+        >
+          <i data-lucide="users" class="w-6 h-6 text-blue-500"></i>
         </div>
+        <div class="text-2xl font-bold text-gray-900">{{ total_donors }}</div>
+        <div class="text-sm text-gray-600">Total Donors</div>
+      </div>
+      <div class="glass-card p-6 fade-in-up">
+        <div
+          class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4"
+        >
+          <i data-lucide="check-circle" class="w-6 h-6 text-green-500"></i>
+        </div>
+        <div class="text-2xl font-bold text-gray-900">{{ active_donors }}</div>
+        <div class="text-sm text-gray-600">Active Donors</div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- Call to Action -->
+{% if session.user_type != 'patient' %}
 <section class="py-16 px-6 bg-white text-gray-900 relative overflow-hidden">
-    <div class="container mx-auto max-w-4xl text-center fade-in-up">
-        <h2 class="text-3xl font-bold text-gray-900 mb-6">Join Our Community</h2>
-        <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            Become a donor and join thousands of people who are making a difference in their communities
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ url_for('auth.register') }}" class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300 inline-flex items-center justify-center">
-                <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-                Become a Donor
-            </a>
-            <a href="{{ url_for('emergency.emergency_list') }}" class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300 inline-flex items-center justify-center">
-                <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i>
-                Emergency Requests
-            </a>
-        </div>
+  <div class="container mx-auto max-w-4xl text-center fade-in-up">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Join Our Community</h2>
+    <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+      Become a donor and join thousands of people who are making a difference in
+      their communities
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a
+        href="{{ url_for('auth.register') }}"
+        class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300 inline-flex items-center justify-center"
+      >
+        <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
+        Become a Donor
+      </a>
+      <a
+        href="{{ url_for('emergency.emergency_list') }}"
+        class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300 inline-flex items-center justify-center"
+      >
+        <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i>
+        Emergency Requests
+      </a>
     </div>
+  </div>
 </section>
-{% endblock %}
-
-{% block extra_scripts %}
+{% endif %} {% endblock %} {% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
     // Fade-in animation for cards and sections
-    const fadeEls = document.querySelectorAll('.fade-in-up, .slide-in-left, .slide-in-right, .slide-in-up');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
+    const fadeEls = document.querySelectorAll(
+      ".fade-in-up, .slide-in-left, .slide-in-right, .slide-in-up"
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
         });
-    }, { threshold: 0.1 });
-    fadeEls.forEach(el => observer.observe(el));
+      },
+      { threshold: 0.1 }
+    );
+    fadeEls.forEach((el) => observer.observe(el));
 
     // Animated counters for statistics
     function animateCounter(el) {
-        const target = +el.getAttribute('data-target');
-        const duration = 1200;
-        const start = 0;
-        let startTimestamp = null;
-        function step(timestamp) {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            el.textContent = Math.floor(progress * (target - start) + start);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            } else {
-                el.textContent = target.toLocaleString();
-            }
+      const target = +el.getAttribute("data-target");
+      const duration = 1200;
+      const start = 0;
+      let startTimestamp = null;
+      function step(timestamp) {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        el.textContent = Math.floor(progress * (target - start) + start);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          el.textContent = target.toLocaleString();
         }
-        window.requestAnimationFrame(step);
+      }
+      window.requestAnimationFrame(step);
     }
-    const statEls = document.querySelectorAll('.stat-animate');
-    const statObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCounter(entry.target);
-                observer.unobserve(entry.target);
-            }
+    const statEls = document.querySelectorAll(".stat-animate");
+    const statObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            observer.unobserve(entry.target);
+          }
         });
-    }, { threshold: 0.7 });
-    statEls.forEach(el => statObserver.observe(el));
+      },
+      { threshold: 0.7 }
+    );
+    statEls.forEach((el) => statObserver.observe(el));
 
     // AJAX-based donor filtering with reliable selectors
-    const nameInput = document.getElementById('donor-search');
-    const bloodTypeSelect = document.getElementById('donor-blood-type');
-    const citySelect = document.getElementById('donor-city');
-    const availabilitySelect = document.getElementById('donor-availability');
-    const donorGrid = document.getElementById('donor-grid');
+    const nameInput = document.getElementById("donor-search");
+    const bloodTypeSelect = document.getElementById("donor-blood-type");
+    const citySelect = document.getElementById("donor-city");
+    const availabilitySelect = document.getElementById("donor-availability");
+    const donorGrid = document.getElementById("donor-grid");
 
     function renderDonors(donors) {
-        donorGrid.innerHTML = '';
-        if (donors.length === 0) {
-            donorGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 32px;">No donors found.</div>';
-            return;
-        }
-        donors.forEach(donor => {
-            donorGrid.innerHTML += `
-            <div class="donor-card" data-availability="${donor.is_available ? 'available' : 'unavailable'}">
-                <div class="accent"></div>
-                <div class="content">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px;">
-                        <div style="display: flex; align-items: center; gap: 28px;">
-                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ef4444 0%, #ec4899 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(220,38,38,0.12);">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            </div>
-                            <div>
-                                <h3>${donor.name}</h3>
-                                <p style="display: flex; align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" style="margin-right: 4px;"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg>${donor.email}</p>
-                            </div>
-                        </div>
-                        <div class="blood-type-badge">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplet" style="margin-right: 4px;"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>${donor.blood_type}
+      donorGrid.innerHTML = "";
+      if (donors.length === 0) {
+        donorGrid.innerHTML =
+          '<div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 32px;">No donors found.</div>';
+        return;
+      }
+      donors.forEach((donor) => {
+        donorGrid.innerHTML += `
+            <div class="donor-card" data-availability="${
+              donor.is_available ? "available" : "unavailable"
+            }">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 4px 0;">${
+                          donor.name
+                        }</h3>
+                        <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">${
+                          donor.email || ""
+                        }</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                        <span style="width: 10px; height: 10px; border-radius: 50%; background: ${
+                          donor.is_available ? "#22c55e" : "#ef4444"
+                        }; display: inline-block;"></span>
+                        <span style="font-size: 0.875rem; font-weight: 600; color: ${
+                          donor.is_available ? "#22c55e" : "#ef4444"
+                        };">
+                            ${donor.is_available ? "Available" : "Unavailable"}
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <span style="color: #6b7280; font-size: 0.875rem;">Blood Group:</span>
+                        <div style="font-weight: 600; color: #111827; display: flex; align-items: center; gap: 4px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+                            ${donor.blood_type}
                         </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; font-size: 1.1rem;">
-                        <div>
-                            <span style="display: flex; align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cake" style="margin-right: 4px;"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"></path><path d="M2 21h20"></path><path d="M7 8v3"></path><path d="M12 8v3"></path><path d="M17 8v3"></path><path d="M7 4h.01"></path><path d="M12 4h.01"></path><path d="M17 4h.01"></path></svg>Age</span>
-                            <span>${donor.age}</span>
-                        </div>
-                        <div>
-                            <span style="display: flex; align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone" style="margin-right: 4px;"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path></svg>Phone</span>
-                            <span>${donor.phone}</span>
-                        </div>
-                        <div style="grid-column: 1 / span 2; margin-top: 8px;">
-                            <span style="display: flex; align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin" style="margin-right: 4px;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>Address</span>
-                            <span>${donor.address || ''}</span>
-                        </div>
+                    <div>
+                        <span style="color: #6b7280; font-size: 0.875rem;">Age:</span>
+                        <div style="font-weight: 600; color: #111827;">${
+                          donor.age
+                        }</div>
                     </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 16px;">
-                        <div class="status">
-                            <span class="status-dot ${donor.is_available ? 'available' : 'unavailable'}"></span>
-                            <span style="font-size: 1.1rem; font-weight: 600; color: ${donor.is_available ? '#22c55e' : '#ef4444'};">
-                                ${donor.is_available ? 'Available' : 'Unavailable'}
-                            </span>
-                        </div>
-                        <div class="actions">
-                            
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(donor.address || '')}" target="_blank" class="emergency-red-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin" style="margin-right: 4px;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>Directions
-                            </a>
-                        </div>
-                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px; min-height: 48px;">
+                    <span style="color: #6b7280; font-size: 0.875rem;">City:</span>
+                    <div style="font-weight: 600; color: #111827; line-height: 1.4;">${
+                      donor.address || "N/A"
+                    }</div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <span style="color: #6b7280; font-size: 0.875rem;">Contact:</span>
+                    <div style="font-weight: 600; color: #111827;">${
+                      donor.phone
+                    }</div>
+                </div>
+                
+                <div style="margin-top: auto;">
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      donor.address || ""
+                    )}" target="_blank" class="directions-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        Get Directions
+                    </a>
                 </div>
             </div>
             `;
-        });
+      });
     }
 
     function fetchAndRenderDonors() {
-        const q = nameInput.value.trim();
-        const bloodType = bloodTypeSelect.value;
-        const city = citySelect.value;
-        const availability = availabilitySelect.value;
-        const params = new URLSearchParams({
-            q, blood_type: bloodType, city, availability
+      const q = nameInput.value.trim();
+      const bloodType = bloodTypeSelect.value;
+      const city = citySelect.value;
+      const availability = availabilitySelect.value;
+      const params = new URLSearchParams({
+        q,
+        blood_type: bloodType,
+        city,
+        availability,
+      });
+      fetch(`/api/search/donors?${params.toString()}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            renderDonors(data.donors);
+          }
         });
-        fetch(`/api/search/donors?${params.toString()}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    renderDonors(data.donors);
-                }
-            });
     }
 
-    nameInput.addEventListener('input', fetchAndRenderDonors);
-    bloodTypeSelect.addEventListener('change', fetchAndRenderDonors);
-    citySelect.addEventListener('change', fetchAndRenderDonors);
-    availabilitySelect.addEventListener('change', fetchAndRenderDonors);
+    nameInput.addEventListener("input", fetchAndRenderDonors);
+    bloodTypeSelect.addEventListener("change", fetchAndRenderDonors);
+    citySelect.addEventListener("change", fetchAndRenderDonors);
+    availabilitySelect.addEventListener("change", fetchAndRenderDonors);
 
     // Initial fetch
     fetchAndRenderDonors();
-});
+  });
 </script>
-{% endblock %} 
+{% endblock %}

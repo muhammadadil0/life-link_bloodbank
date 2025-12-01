@@ -36,6 +36,7 @@ class Patient(db.Model):
 
 class EmergencyRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=True)  # Link to patient who created it
     patient_name = db.Column(db.String(120), nullable=False)
     blood_type = db.Column(db.String(5), nullable=False)
     units_needed = db.Column(db.Integer, nullable=False)

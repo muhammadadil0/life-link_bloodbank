@@ -100,6 +100,7 @@ def register():
 def logout():
     """User logout route"""
     session.clear()
+    flash('You have been logged out successfully.', 'success')
     return redirect(url_for('main.home'))
 
 @auth_bp.route('/forgot-password')
